@@ -12,15 +12,24 @@
 CRITICAL_SECTION csReplicator;
 bool Contains(NODE_REPLICATOR** head, PROCESS process);
 
+/*
+	FUNKCIJA: InitReplicatorList
+	FUNKCIONALNOST: Inicijalizuje kriticnu sekciju
+	POVRATNA VREDNOST: nema, void je
+*/
 void InitReplicatorList(NODE_REPLICATOR** head)
 {
-	//InitializeCriticalSection(&csReplicator);
 	InitializeCriticalSectionAndSpinCount(&csReplicator, 0x80000400);
 	EnterCriticalSection(&csReplicator);
 	*head = NULL;
 	LeaveCriticalSection(&csReplicator);
 }
 
+/*
+	FUNKCIJA: PushBack
+	FUNKCIONALNOST: Stavlja replikator na stek
+	POVRATNA VREDNOST: Uspesnost akcije
+*/
 bool PushBack(NODE_REPLICATOR** head, PROCESS process)
 {
 	if (Contains(head, process))
@@ -49,6 +58,11 @@ bool PushBack(NODE_REPLICATOR** head, PROCESS process)
 	return true;
 }
 
+/*
+	FUNKCIJA: PrintAllProcesses
+	FUNKCIONALNOST: Ispisuje sve procese koji su upisani u red
+	POVRATNA VREDNOST: nema, void je
+*/
 void PrintAllProcesses(NODE_REPLICATOR** head)
 {
 	NODE_REPLICATOR* tempNode = *head;
@@ -65,6 +79,11 @@ void PrintAllProcesses(NODE_REPLICATOR** head)
 	printf("\n");
 }
 
+/*
+	FUNKCIJA: Contains
+	FUNKCIONALNOST: Proverava da li vec postoji proces sa datim ID-jem
+	POVRATNA VREDNOST: Uspesnost akcije
+*/
 bool Contains(NODE_REPLICATOR** head, PROCESS process)
 {
 	NODE_REPLICATOR* tempNode = *head;
@@ -81,6 +100,11 @@ bool Contains(NODE_REPLICATOR** head, PROCESS process)
 	return false;
 }
 
+/*
+	FUNKCIJA: AddSocketToID
+	FUNKCIONALNOST: Trazi na koji soket da doda ID, ako se uspostavila konekacija, dodaje na koji soket se povezao proces i ID
+	POVRATNA VREDNOST: Uspesnost akcije
+*/
 bool AddSocketToID(NODE_REPLICATOR** head, PROCESS** process)
 {
 	NODE_REPLICATOR* tempNode = *head;
@@ -103,6 +127,11 @@ bool AddSocketToID(NODE_REPLICATOR** head, PROCESS** process)
 	return false;
 }
 
+/*
+	FUNKCIJA: IsSocketNull
+	FUNKCIONALNOST: Proveravamo da li je soket null
+	POVRATNA VREDNOST:
+*/
 bool IsSocketNull(NODE_REPLICATOR** head)
 {
 	NODE_REPLICATOR* tempNode = *head;
@@ -119,6 +148,11 @@ bool IsSocketNull(NODE_REPLICATOR** head)
 	return false;
 }
 
+/*
+	FUNKCIJA: FindProcess
+	FUNKCIONALNOST: Trazimo proces sa datim GUID-om
+	POVRATNA VREDNOST: Uspesnost akcije
+*/
 bool FindProcess(NODE_REPLICATOR** head, PROCESS** process, GUID guid)
 {
 	NODE_REPLICATOR* tempNode = *head;
@@ -141,6 +175,11 @@ bool FindProcess(NODE_REPLICATOR** head, PROCESS** process, GUID guid)
 	return false;
 }
 
+/*
+	FUNKCIJA: InitProcess
+	FUNKCIONALNOST: Inicijalizacija procesa
+	POVRATNA VREDNOST: Proces
+*/
 PROCESS InitProcess(GUID processId, SOCKET acceptedSocket)
 {
 	PROCESS p;

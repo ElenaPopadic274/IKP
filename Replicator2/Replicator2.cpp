@@ -349,7 +349,7 @@ DWORD WINAPI handleSocket(LPVOID lpParam)
 						puts("__________________________________________________________________________________");
 						printf("Data saved successfully for process: ID: {" GUID_FORMAT "}\n", GUID_ARG(process->processId));
 
-						recvbuf[0] = '+';// zamenio sam '2' sa '+' jer 2 moze da bude na pocetnom mestu u GUID-u...'+' ce biti indikator na drugom replikatoru da se upisuju novi podaci
+						recvbuf[0] = '+';// zamenila sam '2' sa '+' jer 2 moze da bude na pocetnom mestu u GUID-u...'+' ce biti indikator na drugom replikatoru da se upisuju novi podaci
 						iResult = send(replicatorSocket, recvbuf, strlen(recvbuf) + 1, 0);
 
 						if (iResult == SOCKET_ERROR)
@@ -472,20 +472,6 @@ DWORD WINAPI handleConnectSocket(LPVOID lpParam)
 				{
 					puts("__________________________________________________________________________________");
 					printf("Replicator1 closed connection with process: %s.\n", &recvbuf[1]);
-					
-					//strcpy(&recvbuf[0], "5");
-
-					/*iResult = send(process->acceptedSocket, recvbuf, strlen(recvbuf) + 1, 0);
-
-					if (iResult == SOCKET_ERROR)
-					{
-						printf("send failed with error: %d\n", WSAGetLastError());
-						closesocket(process->acceptedSocket);
-						WSACleanup();
-						return 1;
-					}*/
-
-					//closesocket(process->acceptedSocket);
 				}
 				else 
 				{
@@ -500,9 +486,7 @@ DWORD WINAPI handleConnectSocket(LPVOID lpParam)
 					STARTUPINFO si;
 					PROCESS_INFORMATION pi;
 
-					wchar_t Command[] = L"C:\\Users\\Luka\\Desktop\\IKP\\x64\\Debug\\Process.exe 27017";
-					//C:\\Users\\Trudic\\Desktop\\GitDesktop\\IKP\\x64\\Debug\\Process.exe 27017
-					//C:\\Users\\Luka\\Desktop\\IKP\\x64\\Debug\\Process.exe 27017
+					wchar_t Command[] = L"C:\\Users\\elena\\Desktop\\IKP_Projekat\\IKP\\x64\\Debug\\Process.exe 27017";
 
 					ZeroMemory(&si, sizeof(si));
 					si.cb = sizeof(si);
@@ -524,9 +508,6 @@ DWORD WINAPI handleConnectSocket(LPVOID lpParam)
 						printf("CreateProcess failed (%d).\n", GetLastError());
 						return 0;
 					}
-
-					// Wait until child process exits.
-					//WaitForSingleObject(pi.hProcess, INFINITE);
 
 					// Close process and thread handles. 
 					CloseHandle(pi.hProcess);

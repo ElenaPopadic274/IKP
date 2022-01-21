@@ -3,6 +3,7 @@
 #include <combaseapi.h>
 #include <winsock.h>
 
+//lista procesa
 typedef struct process_st
 {
 	GUID processId;

@@ -1,5 +1,6 @@
 #define WIN32_LEAN_AND_MEAN             // Exclude rarely-used stuff from Windows headers
 
+//liste podataka
 typedef struct data_st
 {
 	char data[100];

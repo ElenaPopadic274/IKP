@@ -8,16 +8,25 @@
 
 CRITICAL_SECTION csProcess;
 
+/*
+	FUNKCIJA: InitProcessList
+	FUNKCIONALNOST: Inicijalizacija liste
+	POVRATNA VREDNOST: nema, void je
+*/
 void InitProcessList(NODE_PROCESS**head)
 {
 	InitializeCriticalSectionAndSpinCount(&csProcess, 0x80000400);
-
 	//InitializeCriticalSection(&csProcess);
 	EnterCriticalSection(&csProcess);
 	*head = NULL;
 	LeaveCriticalSection(&csProcess);
 }
 
+/*
+	FUNKCIJA: PushProcess
+	FUNKCIONALNOST: Dodavanje procesa u listu
+	POVRATNA VREDNOST: nema, void je
+*/
 void PushProcess(NODE_PROCESS** head, DATA data)
 {
 	NODE_PROCESS* tempNode = *head;
@@ -41,6 +50,11 @@ void PushProcess(NODE_PROCESS** head, DATA data)
 	LeaveCriticalSection(&csProcess);
 }
 
+/*
+	FUNKCIJA: PopFront
+	FUNKCIONALNOST: Skidanje sa liste
+	POVRATNA VREDNOST: Data
+*/
 DATA PopFront(NODE_PROCESS** head)
 {
 	NODE_PROCESS* tempNode = *head;
@@ -60,6 +74,11 @@ DATA PopFront(NODE_PROCESS** head)
 	return returnData;
 }
 
+/*
+	FUNKCIJA: PrintAllData
+	FUNKCIONALNOST: Ispisuje sve podatke
+	POVRATNA VREDNOST: nema, void je
+*/
 void PrintAllData(NODE_PROCESS** head)
 {
 	NODE_PROCESS* tempNode = *head;
@@ -74,6 +93,11 @@ void PrintAllData(NODE_PROCESS** head)
 	printf("\n");
 }
 
+/*
+	FUNKCIJA: InitData
+	FUNKCIONALNOST: Inicijalizuje podatke
+	POVRATNA VREDNOST: Data
+*/
 DATA InitData(char* data)
 {
 	DATA d;

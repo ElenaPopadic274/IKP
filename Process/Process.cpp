@@ -34,6 +34,9 @@ int main(int argc, char* argv[])
 	InitProcessList(&headProcess);
 	int serverPort = DEFAULT_PORT_R1;
 
+	/*
+		Proces bira sa kojim replikatorom zeli da se poveze
+	*/
 	if (argc > 1)
 	{
 		char* arg = (char*)argv[1];
@@ -97,9 +100,6 @@ int main(int argc, char* argv[])
 	SOCKET connectSocket = INVALID_SOCKET;
 	// variable used to store function return value
 	int iResult;
-	// message to send
-	//char* messageToSend = "";
-
 	if (InitializeWindowsSockets() == false)
 	{
 		// we won't log anything since it will be logged
@@ -167,6 +167,7 @@ int main(int argc, char* argv[])
 				if (i == 0)
 				{
 					puts("Client is shuting down...");
+					//CloseHandle(handle);
 					break;
 				}
 				else if (i == 1)
@@ -207,6 +208,11 @@ int main(int argc, char* argv[])
 	return 0;
 }
 
+/*
+	FUNKCIJA: InitializeWindowsSockets
+	FUNKCIONALNOST: Inicijalizuje WsaData podatke
+	POVRATNA VREDNOST: Uspesnost akcije
+*/
 bool InitializeWindowsSockets()
 {
 	WSADATA wsaData;
@@ -219,6 +225,11 @@ bool InitializeWindowsSockets()
 	return true;
 }
 
+/*
+	FUNKCIJA: RegisterProcess
+	FUNKCIONALNOST: Registruje proces
+	POVRATNA VREDNOST: nema, void je
+*/
 void RegisterProcess(SOCKET connectSocket, int i)
 {
 	char messageBuffer[DEFAULT_BUFLEN];
@@ -236,6 +247,11 @@ void RegisterProcess(SOCKET connectSocket, int i)
 
 }
 
+/*
+	FUNKCIJA: SendData
+	FUNKCIONALNOST: Salje podatke na izabrani proces
+	POVRATNA VREDNOST: nema, void je
+*/
 void SendData(SOCKET connectSocket, char* i)
 {
 	char messageBuffer[DEFAULT_BUFLEN];
@@ -252,6 +268,11 @@ void SendData(SOCKET connectSocket, char* i)
 	}
 }
 
+/*
+	FUNKCIJA: guidToString
+	FUNKCIONALNOST: Pretvara globalni identifikator u string
+	POVRATNA VREDNOST: string
+*/
 char* guidToString(const GUID* id, char* out) {
 	int i;
 	char* ret = out;
@@ -263,6 +284,11 @@ char* guidToString(const GUID* id, char* out) {
 	return ret;
 }
 
+/*
+	FUNKCIJA: stringToGUID
+	FUNKCIONALNOST: Pretvara string u globalni identifikator
+	POVRATNA VREDNOST: GUID
+*/
 GUID stringToGUID(const std::string& guid) {
 	GUID output;
 	const auto ret = sscanf(guid.c_str(), "%08lX-%04hX-%04hX-%02hhX%02hhX-%02hhX%02hhX%02hhX%02hhX%02hhX%02hhX", &output.Data1, &output.Data2, &output.Data3, &output.Data4[0], &output.Data4[1], &output.Data4[2], &output.Data4[3], &output.Data4[4], &output.Data4[5], &output.Data4[6], &output.Data4[7]);
@@ -271,6 +297,11 @@ GUID stringToGUID(const std::string& guid) {
 	return output;
 }
 
+/*
+	FUNKCIJA: handleIncomingData
+	FUNKCIONALNOST: Upravlja sa sadrzajem koji pristize, u zavisnosti od odabira funkcije moze da registruje proces i da cuva podatke
+	POVRATNA VREDNOST: Uspesnost akcije
+*/
 DWORD WINAPI handleIncomingData(LPVOID lpParam)
 {
 	SOCKET* connectSocket = (SOCKET*)lpParam;
@@ -328,6 +359,7 @@ DWORD WINAPI handleIncomingData(LPVOID lpParam)
 			{
 				// connection was closed gracefully
 				printf("Connection with Replicator closed.\n");
+				
 				closesocket(*connectSocket);
 			}
 			else

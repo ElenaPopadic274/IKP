@@ -35,12 +35,13 @@ SOCKET replicatorSocket = INVALID_SOCKET;
 
 int main()
 {
+	//Repl 1 inicijalizuje svoje liste
 	InitReplicatorList(&head);
 	InitProcessList(&headProcessReceive);
 	InitProcessList(&headProcessSend);
 
 #pragma region listenRegion
-
+	//Ceka da se repl 2 poveze, ne nastavlja dok se ne poveze
 	// Socket used for listening for new clients 
 	SOCKET listenSocket = INVALID_SOCKET;
 	// Socket used for communication with client
@@ -203,6 +204,7 @@ int main()
 		CoCreateGuid(&Id);
 		processAdd[numberOfClients] = InitProcess(Id, acceptedSocket[numberOfClients]);
 
+		//nit koja radi samo sa ovim procesom
 		handle[numberOfClients] = CreateThread(NULL, 0, &handleSocket, &processAdd[numberOfClients], 0, &funId[numberOfClients]);
 		CloseHandle(handle[numberOfClients]);
 
@@ -230,6 +232,12 @@ int main()
 	return 0;
 }
 
+
+/*
+	FUNKCIJA: InitializeWindowsSockets
+	FUNKCIONALNOST: Inicijalizuje WsaData podatke
+	POVRATNA VREDNOST: Uspesnost akcije
+*/
 bool InitializeWindowsSockets()
 {
 	WSADATA wsaData;
@@ -242,6 +250,11 @@ bool InitializeWindowsSockets()
 	return true;
 }
 
+/*
+	FUNKCIJA: handleSocket
+	FUNKCIONALNOST: Stavlja soket u non-blocking mode, stavlja proces u red, registruje proces, salje podatke
+	POVRATNA VREDNOST: U zavisnosti od odabira akcije salje podatke, registruje proces...
+*/
 DWORD WINAPI handleSocket(LPVOID lpParam)
 {
 	PROCESS* process = (PROCESS*)lpParam;
@@ -346,7 +359,7 @@ DWORD WINAPI handleSocket(LPVOID lpParam)
 						puts("__________________________________________________________________________________");
 						printf("Data saved successfully for process: ID: {" GUID_FORMAT "}\n", GUID_ARG(process->processId));
 
-						recvbuf[0] = '+';// zamenio sam '2' sa '+' jer 2 moze da bude na pocetnom mestu u GUID-u...'+' ce biti indikator na drugom replikatoru da se upisuju novi podaci
+						recvbuf[0] = '+';// zamenila sam '2' sa '+' jer 2 moze da bude na pocetnom mestu u GUID-u...'+' ce biti indikator na drugom replikatoru da se upisuju novi podaci
 						iResult = send(replicatorSocket, recvbuf, strlen(recvbuf) + 1, 0);
 
 						if (iResult == SOCKET_ERROR)
@@ -413,6 +426,11 @@ DWORD WINAPI handleSocket(LPVOID lpParam)
 	return 0;
 }
 
+/*
+	FUNKCIJA: handleConnectSocket
+	FUNKCIONALNOST: Rad sa replikatorom, kreira nov proces
+	POVRATNA VREDNOST: U zavisnosti od izabrane akcije
+*/
 DWORD WINAPI handleConnectSocket(LPVOID lpParam)
 {
 	int iResult;
@@ -448,10 +466,10 @@ DWORD WINAPI handleConnectSocket(LPVOID lpParam)
 				{
 					GUID guid = stringToGUID(&recvbuf[1]);
 
-					PROCESS processInfo = InitProcess(guid, NULL); // lose resenje
+					PROCESS processInfo = InitProcess(guid, NULL);
 					PROCESS* process = &processInfo;
 
-					DATA data;                           // lose resenje
+					DATA data;          
 					strcpy(data.data, &recvbuf[37]);
 					FindProcess(&head, &process, guid);
 
@@ -467,42 +485,10 @@ DWORD WINAPI handleConnectSocket(LPVOID lpParam)
 				}
 				else if (recvbuf[0] == 'x')
 				{
-					/*GUID guid = stringToGUID(&recvbuf[1]);
-
-					PROCESS processInfo = InitProcess(guid, NULL);
-					PROCESS* process = &processInfo;
-
-					FindProcess(&head, &process, guid);
-					*/
+					
 					puts("__________________________________________________________________________________");
 					printf("Replicator2 closed connection with process: %s.\n", &recvbuf[1]);
 					
-					//closesocket(process->acceptedSocket);
-
-
-					/*if (!IsSocketNull(&head)) {
-						GUID guid = stringToGUID(&recvbuf[1]);
-
-						PROCESS processInfo = InitProcess(guid, NULL);
-						PROCESS* process = &processInfo;
-
-						FindProcess(&head, &process, guid);
-
-						puts("__________________________________________________________________________________");
-						printf("Replicator2 closed connection with process: %s.\n", &recvbuf[1]);
-
-						strcpy(&recvbuf[0], "5");
-
-						iResult = send(process->acceptedSocket, recvbuf, strlen(recvbuf) + 1, 0);
-
-						if (iResult == SOCKET_ERROR)
-						{
-							printf("send failed with error: %d\n", WSAGetLastError());
-							closesocket(process->acceptedSocket);
-							WSACleanup();
-							return 1;
-						}
-					}*/
 				}
 				else
 				{
@@ -517,9 +503,8 @@ DWORD WINAPI handleConnectSocket(LPVOID lpParam)
 					STARTUPINFO si;
 					PROCESS_INFORMATION pi;
 
-					wchar_t Command[] = L"C:\\Users\\Luka\\Desktop\\IKP\\x64\\Debug\\Process.exe 27016";
-					//C:\\Users\\Trudic\\Desktop\\GitDesktop\\IKP\\x64\\Debug\\Process.exe 27016
-					//C:\\Users\\Luka\\Desktop\\IKP\\x64\\Debug\\Process.exe 27016
+					wchar_t Command[] = L"C:\\Users\\elena\\Desktop\\IKP_Projekat\\IKP\\x64\\Debug\\Process.exe 27016";
+					
 
 					ZeroMemory(&si, sizeof(si));
 					si.cb = sizeof(si);
@@ -541,9 +526,6 @@ DWORD WINAPI handleConnectSocket(LPVOID lpParam)
 						printf("CreateProcess failed (%d).\n", GetLastError());
 						return 0;
 					}
-
-					// Wait until child process exits.
-					//WaitForSingleObject(pi.hProcess, INFINITE);
 
 					// Close process and thread handles. 
 					CloseHandle(pi.hProcess);
@@ -571,6 +553,11 @@ DWORD WINAPI handleConnectSocket(LPVOID lpParam)
 	return 0;
 }
 
+/*
+	FUNKCIJA: handleData
+	FUNKCIONALNOST: Salje podatke dalje
+	POVRATNA VREDNOST: Uspesnost akcije
+*/
 DWORD WINAPI handleData(LPVOID lpParam)
 {
 	PROCESS* process = (PROCESS*)lpParam;
@@ -600,6 +587,11 @@ DWORD WINAPI handleData(LPVOID lpParam)
 	return 0;
 }
 
+/*
+	FUNKCIJA: guidToString
+	FUNKCIONALNOST: Prebacuje globalni identifikator u string 
+	POVRATNA VREDNOST: string
+*/
 char* guidToString(const GUID* id, char* out) {
 	int i;
 	char* ret = out;
@@ -611,6 +603,11 @@ char* guidToString(const GUID* id, char* out) {
 	return ret;
 }
 
+/*
+	FUNKCIJA: stringToGuid
+	FUNKCIONALNOST: prebacuje string u globalni identifikator
+	POVRATNA VREDNOST: guid
+*/
 GUID stringToGUID(const std::string& guid) {
 	GUID output;
 	const auto ret = sscanf(guid.c_str(), "%08lX-%04hX-%04hX-%02hhX%02hhX-%02hhX%02hhX%02hhX%02hhX%02hhX%02hhX", &output.Data1, &output.Data2, &output.Data3, &output.Data4[0], &output.Data4[1], &output.Data4[2], &output.Data4[3], &output.Data4[4], &output.Data4[5], &output.Data4[6], &output.Data4[7]);
