@@ -1,4 +1,4 @@
-# IKP
+# IKP - INDUSTRIJSKI KOMUNIKACIONI PROTOKOLI | INDUSTRIAL COMMUNICATION PROTOCOLS
 Potrebno je implementirati servis za replikaciju podataka. Servis se sasatoji iz dva replikatora, i po N parova procesa, na svakom replikatoru po jedan proces 
 iz svakog para sa istim imenom. 
 
